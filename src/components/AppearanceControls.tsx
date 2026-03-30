@@ -31,7 +31,7 @@ export const AppearanceControls: React.FC<Props> = ({ state, setState }) => {
               onClick={() => handleChange('theme', theme.value)}
               className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 flex items-center gap-2 ${
                 state.theme === theme.value
-                  ? 'bg-white/10 text-white ring-2 ring-indigo-500/50'
+                  ? 'bg-white/15 text-white ring-1 ring-white/30'
                   : 'bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-white'
               }`}
             >
@@ -54,7 +54,7 @@ export const AppearanceControls: React.FC<Props> = ({ state, setState }) => {
               onClick={() => handleChange('background', bg)}
               className={`aspect-square rounded-xl border-2 transition-all duration-200 hover:scale-105 ${
                 state.background === bg 
-                  ? 'ring-2 ring-indigo-500/50 border-white/30 scale-105' 
+                  ? 'ring-2 ring-white/50 border-white/30 scale-105' 
                   : 'border-white/10 hover:border-white/20'
               }`}
               style={{ background: bg === 'transparent' ? '#0a0a0a' : bg }}
@@ -80,7 +80,7 @@ export const AppearanceControls: React.FC<Props> = ({ state, setState }) => {
           step="8"
           value={state.padding}
           onChange={(e) => handleChange('padding', parseInt(e.target.value))}
-          className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+          className="w-full h-2 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-white"
         />
       </div>
 
@@ -90,13 +90,14 @@ export const AppearanceControls: React.FC<Props> = ({ state, setState }) => {
           <select
             value={state.fontFamily}
             onChange={(e) => handleChange('fontFamily', e.target.value)}
-            className="w-full p-2.5 border border-white/10 rounded-lg focus:border-indigo-500/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-neutral-900/30 text-neutral-200 transition-all text-sm appearance-none cursor-pointer pr-10"
+            className="w-full p-2.5 border border-white/10 rounded-lg focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/10 bg-neutral-800 text-neutral-200 transition-all text-sm appearance-none cursor-pointer pr-10
+              [&>option]:bg-neutral-800 [&>option]:text-neutral-200 [&>option]:py-1"
           >
             {FONTS.map((font) => (
               <option key={font} value={font}>{font}</option>
             ))}
           </select>
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-400">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
@@ -116,7 +117,7 @@ export const AppearanceControls: React.FC<Props> = ({ state, setState }) => {
           step="1"
           value={state.fontSize}
           onChange={(e) => handleChange('fontSize', parseInt(e.target.value))}
-          className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+          className="w-full h-2 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-white"
         />
       </div>
 
@@ -132,7 +133,7 @@ export const AppearanceControls: React.FC<Props> = ({ state, setState }) => {
           step="2"
           value={state.indentSize}
           onChange={(e) => handleChange('indentSize', parseInt(e.target.value))}
-          className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+          className="w-full h-2 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-white"
         />
       </div>
 
@@ -145,7 +146,7 @@ export const AppearanceControls: React.FC<Props> = ({ state, setState }) => {
               onClick={() => handleChange('windowControls', ctrl)}
               className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
                 state.windowControls === ctrl
-                  ? 'bg-white/10 text-white ring-2 ring-indigo-500/50'
+                  ? 'bg-white/15 text-white ring-1 ring-white/30'
                   : 'bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-white'
               }`}
             >
@@ -155,26 +156,26 @@ export const AppearanceControls: React.FC<Props> = ({ state, setState }) => {
         </div>
       </div>
 
-      <div className="space-y-3 pt-2">
-        <label className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
-          <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${state.dropShadow ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600 group-hover:border-neutral-500'}`}>
-            {state.dropShadow && (
-              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            )}
-          </div>
+      <div className="space-y-2 pt-2">
+        <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
+          <input
+            type="checkbox"
+            checked={state.dropShadow}
+            onChange={(e) => handleChange('dropShadow', e.target.checked)}
+            className="w-5 h-5 rounded border-2 border-white/20 bg-transparent checked:bg-white checked:border-white checked:text-neutral-900 focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none relative transition-all
+              before:content-[''] before:absolute before:top-0.5 before:left-1.5 before:w-2 before:h-3.5 before:border-r-2 before:border-b-2 before:border-neutral-900 before:rotate-45 before:opacity-0 checked:before:opacity-100 before:transition-opacity"
+          />
           <span className="text-sm font-medium tracking-tight group-hover:text-white transition-colors">Drop Shadow</span>
         </label>
 
-        <label className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
-          <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${state.showPromptSymbol ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600 group-hover:border-neutral-500'}`}>
-            {state.showPromptSymbol && (
-              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            )}
-          </div>
+        <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
+          <input
+            type="checkbox"
+            checked={state.showPromptSymbol}
+            onChange={(e) => handleChange('showPromptSymbol', e.target.checked)}
+            className="w-5 h-5 rounded border-2 border-white/20 bg-transparent checked:bg-white checked:border-white checked:text-neutral-900 focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none relative transition-all
+              before:content-[''] before:absolute before:top-0.5 before:left-1.5 before:w-2 before:h-3.5 before:border-r-2 before:border-b-2 before:border-neutral-900 before:rotate-45 before:opacity-0 checked:before:opacity-100 before:transition-opacity"
+          />
           <span className="text-sm font-medium tracking-tight group-hover:text-white transition-colors">Show $ Prompt</span>
         </label>
       </div>

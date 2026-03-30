@@ -18,7 +18,7 @@ export const ContentControls: React.FC<Props> = ({ state, setState }) => {
         <textarea
           value={state.prompt}
           onChange={(e) => handleChange('prompt', e.target.value)}
-          className="w-full h-72 p-4 border border-white/10 rounded-xl focus:border-indigo-500/50 focus:bg-neutral-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-neutral-900/30 text-neutral-200 transition-all font-mono text-sm resize-y placeholder-neutral-600"
+          className="w-full h-72 p-4 border border-white/10 rounded-xl focus:border-white/30 focus:bg-neutral-800/50 focus:outline-none focus:ring-1 focus:ring-white/10 bg-neutral-800/30 text-neutral-200 transition-all font-mono text-sm resize-y placeholder-neutral-600"
           placeholder="Enter your prompt here..."
         />
       </div>
@@ -32,7 +32,7 @@ export const ContentControls: React.FC<Props> = ({ state, setState }) => {
               onClick={() => handleChange('agent', agent)}
               className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 state.agent === agent
-                  ? 'bg-white/15 text-white ring-2 ring-white/30 shadow-lg shadow-black/20'
+                  ? 'bg-white/15 text-white ring-1 ring-white/30'
                   : 'bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-white'
               }`}
             >
@@ -43,29 +43,29 @@ export const ContentControls: React.FC<Props> = ({ state, setState }) => {
       </div>
 
       {/* Agent Specific Settings */}
-      <div className="p-4 bg-gradient-to-b from-white/[0.03] to-transparent border border-white/10 rounded-xl space-y-4">
+      <div className="p-4 bg-neutral-800/30 border border-white/10 rounded-xl space-y-4">
         <h3 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500 mb-2">Agent Settings</h3>
         
         {state.agent === 'claude' && (
-          <div className="space-y-3">
-            <label className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
-              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${state.claudeSkipPermissions ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600 group-hover:border-neutral-500'}`}>
-                {state.claudeSkipPermissions && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
+          <div className="space-y-2">
+            <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <input
+                type="checkbox"
+                checked={state.claudeSkipPermissions}
+                onChange={(e) => handleChange('claudeSkipPermissions', e.target.checked)}
+                className="w-5 h-5 rounded border-2 border-white/20 bg-transparent checked:bg-white checked:border-white checked:text-neutral-900 focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none relative transition-all
+                  before:content-[''] before:absolute before:top-0.5 before:left-1.5 before:w-2 before:h-3.5 before:border-r-2 before:border-b-2 before:border-neutral-900 before:rotate-45 before:opacity-0 checked:before:opacity-100 before:transition-opacity"
+              />
               <span className="text-sm font-medium tracking-tight group-hover:text-white transition-colors">--dangerously-skip-permissions</span>
             </label>
-            <label className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
-              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${state.claudeVerbose ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600 group-hover:border-neutral-500'}`}>
-                {state.claudeVerbose && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
+            <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <input
+                type="checkbox"
+                checked={state.claudeVerbose}
+                onChange={(e) => handleChange('claudeVerbose', e.target.checked)}
+                className="w-5 h-5 rounded border-2 border-white/20 bg-transparent checked:bg-white checked:border-white checked:text-neutral-900 focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none relative transition-all
+                  before:content-[''] before:absolute before:top-0.5 before:left-1.5 before:w-2 before:h-3.5 before:border-r-2 before:border-b-2 before:border-neutral-900 before:rotate-45 before:opacity-0 checked:before:opacity-100 before:transition-opacity"
+              />
               <span className="text-sm font-medium tracking-tight group-hover:text-white transition-colors">--verbose</span>
             </label>
           </div>
@@ -80,7 +80,7 @@ export const ContentControls: React.FC<Props> = ({ state, setState }) => {
                 value={state.opencodeModel}
                 onChange={(e) => handleChange('opencodeModel', e.target.value)}
                 placeholder="e.g. gpt-4o"
-                className="w-full p-2.5 border border-white/10 rounded-lg focus:border-indigo-500/50 focus:bg-neutral-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-neutral-900/30 text-neutral-200 transition-all text-sm placeholder-neutral-600"
+                className="w-full p-2.5 border border-white/10 rounded-lg focus:border-white/30 focus:bg-neutral-800/50 focus:outline-none focus:ring-1 focus:ring-white/10 bg-neutral-800/30 text-neutral-200 transition-all text-sm placeholder-neutral-600"
               />
             </div>
             <div className="space-y-2">
@@ -92,7 +92,7 @@ export const ContentControls: React.FC<Props> = ({ state, setState }) => {
                 step="0.1"
                 value={state.opencodeTemperature}
                 onChange={(e) => handleChange('opencodeTemperature', parseFloat(e.target.value))}
-                className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                className="w-full h-2 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-white"
               />
             </div>
           </div>
@@ -107,27 +107,27 @@ export const ContentControls: React.FC<Props> = ({ state, setState }) => {
                 value={state.aiderModel}
                 onChange={(e) => handleChange('aiderModel', e.target.value)}
                 placeholder="e.g. sonnet"
-                className="w-full p-2.5 border border-white/10 rounded-lg focus:border-indigo-500/50 focus:bg-neutral-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-neutral-900/30 text-neutral-200 transition-all text-sm placeholder-neutral-600"
+                className="w-full p-2.5 border border-white/10 rounded-lg focus:border-white/30 focus:bg-neutral-800/50 focus:outline-none focus:ring-1 focus:ring-white/10 bg-neutral-800/30 text-neutral-200 transition-all text-sm placeholder-neutral-600"
               />
             </div>
-            <label className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
-              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${state.aiderAutoCommits ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600 group-hover:border-neutral-500'}`}>
-                {state.aiderAutoCommits && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
+            <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <input
+                type="checkbox"
+                checked={state.aiderAutoCommits}
+                onChange={(e) => handleChange('aiderAutoCommits', e.target.checked)}
+                className="w-5 h-5 rounded border-2 border-white/20 bg-transparent checked:bg-white checked:border-white checked:text-neutral-900 focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none relative transition-all
+                  before:content-[''] before:absolute before:top-0.5 before:left-1.5 before:w-2 before:h-3.5 before:border-r-2 before:border-b-2 before:border-neutral-900 before:rotate-45 before:opacity-0 checked:before:opacity-100 before:transition-opacity"
+              />
               <span className="text-sm font-medium tracking-tight group-hover:text-white transition-colors">Auto Commits</span>
             </label>
-            <label className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
-              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${state.aiderLint ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600 group-hover:border-neutral-500'}`}>
-                {state.aiderLint && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
+            <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <input
+                type="checkbox"
+                checked={state.aiderLint}
+                onChange={(e) => handleChange('aiderLint', e.target.checked)}
+                className="w-5 h-5 rounded border-2 border-white/20 bg-transparent checked:bg-white checked:border-white checked:text-neutral-900 focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none relative transition-all
+                  before:content-[''] before:absolute before:top-0.5 before:left-1.5 before:w-2 before:h-3.5 before:border-r-2 before:border-b-2 before:border-neutral-900 before:rotate-45 before:opacity-0 checked:before:opacity-100 before:transition-opacity"
+              />
               <span className="text-sm font-medium tracking-tight group-hover:text-white transition-colors">--lint</span>
             </label>
           </div>
@@ -142,17 +142,17 @@ export const ContentControls: React.FC<Props> = ({ state, setState }) => {
                 value={state.cursorModel}
                 onChange={(e) => handleChange('cursorModel', e.target.value)}
                 placeholder="e.g. claude-3.5-sonnet"
-                className="w-full p-2.5 border border-white/10 rounded-lg focus:border-indigo-500/50 focus:bg-neutral-900/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-neutral-900/30 text-neutral-200 transition-all text-sm placeholder-neutral-600"
+                className="w-full p-2.5 border border-white/10 rounded-lg focus:border-white/30 focus:bg-neutral-800/50 focus:outline-none focus:ring-1 focus:ring-white/10 bg-neutral-800/30 text-neutral-200 transition-all text-sm placeholder-neutral-600"
               />
             </div>
-            <label className="flex items-center space-x-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
-              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${state.cursorNewWindow ? 'bg-indigo-500 border-indigo-500' : 'border-neutral-600 group-hover:border-neutral-500'}`}>
-                {state.cursorNewWindow && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
+            <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-white/5 transition-colors">
+              <input
+                type="checkbox"
+                checked={state.cursorNewWindow}
+                onChange={(e) => handleChange('cursorNewWindow', e.target.checked)}
+                className="w-5 h-5 rounded border-2 border-white/20 bg-transparent checked:bg-white checked:border-white checked:text-neutral-900 focus:ring-0 focus:ring-offset-0 cursor-pointer appearance-none relative transition-all
+                  before:content-[''] before:absolute before:top-0.5 before:left-1.5 before:w-2 before:h-3.5 before:border-r-2 before:border-b-2 before:border-neutral-900 before:rotate-45 before:opacity-0 checked:before:opacity-100 before:transition-opacity"
+              />
               <span className="text-sm font-medium tracking-tight group-hover:text-white transition-colors">--new-window</span>
             </label>
           </div>
