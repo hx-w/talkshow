@@ -4,7 +4,7 @@ import { AppState, BACKGROUNDS } from './types';
 import { ContentControls } from './components/ContentControls';
 import { AppearanceControls } from './components/AppearanceControls';
 import { CardPreview } from './components/CardPreview';
-import { Copy, Download, Terminal, Check } from 'lucide-react';
+import { Copy, Download, Terminal, Check, Sparkles } from 'lucide-react';
 
 export default function App() {
   const [state, setState] = useState<AppState>({
@@ -109,32 +109,42 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-neutral-900 font-sans text-neutral-200 overflow-hidden selection:bg-neutral-700 selection:text-white">
+    <div className="flex flex-col h-screen bg-neutral-950 font-sans text-neutral-200 overflow-hidden selection:bg-indigo-500/30 selection:text-white">
       {/* Header */}
-      <header className="h-16 flex items-center justify-between px-8 bg-neutral-900 border-b border-neutral-800 shrink-0 z-20">
-        <div className="flex items-center">
-          <h1 className="text-xl font-medium tracking-widest text-white">TALKSHOW</h1>
+      <header className="h-16 flex items-center justify-between px-8 bg-neutral-900/80 backdrop-blur-xl border-b border-white/5 shrink-0 z-20">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur-md opacity-50 pulse-glow" />
+            <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+          </div>
+          <h1 className="text-xl font-semibold tracking-wide text-white">TalkShow</h1>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-3">
           <button 
-            className="flex items-center px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800 rounded transition-colors w-32 justify-center" 
+            className="btn-fancy flex items-center px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-all duration-200 gap-2" 
             onClick={handleCopyCommand}
           >
-            {copiedCmd ? <Check className="w-4 h-4 mr-2 text-white" /> : <Terminal className="w-4 h-4 mr-2" />}
-            <span className={copiedCmd ? "text-white" : ""}>{copiedCmd ? "Copied!" : "Command"}</span>
+            {copiedCmd ? <Check className="w-4 h-4 text-emerald-400" /> : <Terminal className="w-4 h-4" />}
+            <span>{copiedCmd ? "Copied!" : "Command"}</span>
           </button>
           <button 
-            className="flex items-center px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800 rounded transition-colors w-32 justify-center" 
+            className="btn-fancy flex items-center px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-all duration-200 gap-2" 
             onClick={handleCopyImage}
           >
-            {copiedImg ? <Check className="w-4 h-4 mr-2 text-white" /> : <Copy className="w-4 h-4 mr-2" />}
-            <span className={copiedImg ? "text-white" : ""}>{copiedImg ? "Copied!" : "Image"}</span>
+            {copiedImg ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+            <span>{copiedImg ? "Copied!" : "Image"}</span>
           </button>
           <button 
-            className={`flex items-center px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-black rounded transition-colors w-32 justify-center ${exported ? 'bg-neutral-300' : 'bg-white hover:bg-neutral-200'}`} 
+            className={`btn-fancy flex items-center px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider rounded-lg transition-all duration-200 gap-2 ${
+              exported 
+                ? 'bg-emerald-500 text-white' 
+                : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25'
+            }`} 
             onClick={handleDownloadImage}
           >
-            {exported ? <Check className="w-4 h-4 mr-2" /> : <Download className="w-4 h-4 mr-2" />}
+            {exported ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
             {exported ? "Exported!" : "Export"}
           </button>
         </div>
@@ -143,17 +153,45 @@ export default function App() {
       {/* Main Workspace */}
       <div className="flex flex-1 overflow-hidden z-10">
         {/* Left Panel: Content & Agent */}
-        <div className="w-80 flex-shrink-0 bg-neutral-900 border-r border-neutral-800 overflow-y-auto hide-scrollbar z-10">
-          <div className="p-6 border-b border-neutral-800">
-            <h2 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500">Content</h2>
+        <div className="w-80 flex-shrink-0 glass-panel overflow-y-auto hide-scrollbar z-10 border-r border-white/5">
+          <div className="p-6 border-b border-white/5">
+            <h2 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Content</h2>
           </div>
           <ContentControls state={state} setState={setState} />
         </div>
 
         {/* Center: Preview */}
-        <div className="flex-1 flex items-center justify-center bg-neutral-950 overflow-auto hide-scrollbar p-8 relative">
-          {/* Minimalist Grid Background */}
-          <div className="absolute inset-0 z-0 opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+        <div className="flex-1 flex items-center justify-center overflow-auto hide-scrollbar p-8 relative">
+          {/* Ambient background that matches card background */}
+          <div 
+            className="absolute inset-0 transition-all duration-500"
+            style={{ 
+              background: state.background === 'transparent' ? '#0a0a0a' : state.background,
+            }}
+          />
+          {/* Blur overlay */}
+          <div 
+            className="absolute inset-0 backdrop-blur-3xl opacity-60"
+            style={{ 
+              background: state.background === 'transparent' 
+                ? 'rgba(10, 10, 10, 0.8)' 
+                : state.background.includes('gradient')
+                  ? 'rgba(0, 0, 0, 0.4)'
+                  : state.background.startsWith('#') && state.background !== '#1a1a1a' && state.background !== '#ffffff'
+                    ? 'rgba(0, 0, 0, 0.3)'
+                    : state.background === '#ffffff'
+                      ? 'rgba(255, 255, 255, 0.2)'
+                      : 'rgba(0, 0, 0, 0.5)'
+            }}
+          />
+          {/* Subtle noise texture */}
+          <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
+          
+          {/* Grid pattern */}
+          <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '64px 64px' }}></div>
+          
+          {/* Radial glow */}
+          <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%)' }} />
           
           <div className="z-10 w-full flex justify-center">
             <CardPreview state={state} ref={cardRef} />
@@ -161,9 +199,9 @@ export default function App() {
         </div>
 
         {/* Right Panel: Appearance */}
-        <div className="w-80 flex-shrink-0 bg-neutral-900 border-l border-neutral-800 overflow-y-auto hide-scrollbar z-10">
-          <div className="p-6 border-b border-neutral-800">
-            <h2 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500">Appearance</h2>
+        <div className="w-80 flex-shrink-0 glass-panel overflow-y-auto hide-scrollbar z-10 border-l border-white/5">
+          <div className="p-6 border-b border-white/5">
+            <h2 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">Appearance</h2>
           </div>
           <AppearanceControls state={state} setState={setState} />
         </div>

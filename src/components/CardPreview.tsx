@@ -58,7 +58,7 @@ export const CardPreview = forwardRef<HTMLDivElement, CardPreviewProps>(({ state
     }
 
     return (
-      <div className="flex flex-col space-y-1">
+      <div className="flex flex-col space-y-1.5">
         {lines.map((line, i) => (
           <div key={i} className="flex">
             {i === 0 ? (
@@ -80,43 +80,53 @@ export const CardPreview = forwardRef<HTMLDivElement, CardPreviewProps>(({ state
   return (
     <div
       ref={ref}
-      className="flex items-center justify-center transition-all duration-200 ease-in-out"
+      className="flex items-center justify-center transition-all duration-300 ease-out"
       style={{
-        background: state.background,
+        background: state.background === 'transparent' ? '#0a0a0a' : state.background,
         padding: `${state.padding}px`,
       }}
     >
       <div
-        className="relative overflow-hidden transition-all duration-200 ease-in-out w-full max-w-3xl min-w-[400px]"
+        className="relative overflow-hidden transition-all duration-300 ease-out w-full max-w-3xl"
         style={{
           backgroundColor: theme.bg,
           color: theme.text,
-          borderRadius: '12px',
-          boxShadow: state.dropShadow ? '0 20px 68px rgba(0, 0, 0, 0.55)' : 'none',
-          border: theme.border ? `1px solid ${theme.border}` : '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '16px',
+          boxShadow: state.dropShadow 
+            ? '0 25px 80px -12px rgba(0, 0, 0, 0.6), 0 8px 32px -8px rgba(0, 0, 0, 0.4)' 
+            : 'none',
+          border: theme.border ? `1px solid ${theme.border}` : '1px solid rgba(255,255,255,0.08)',
           fontSize: `${state.fontSize}px`,
-          lineHeight: 1.6,
+          lineHeight: 1.7,
         }}
       >
+        {/* Subtle inner glow */}
+        <div 
+          className="absolute inset-0 pointer-events-none rounded-[inherit]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%)',
+          }}
+        />
+
         {/* Window Controls */}
         {state.windowControls !== 'none' && (
-          <div className="flex items-center px-4 pt-4 pb-2 space-x-2">
+          <div className="flex items-center px-5 pt-5 pb-3 space-x-2">
             {state.windowControls === 'mac' ? (
               <>
-                <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-                <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-                <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
+                <div className="w-3 h-3 rounded-full bg-[#ff5f57] shadow-sm" style={{ boxShadow: '0 0 0 0.5px rgba(0,0,0,0.1)' }} />
+                <div className="w-3 h-3 rounded-full bg-[#febc2e] shadow-sm" style={{ boxShadow: '0 0 0 0.5px rgba(0,0,0,0.1)' }} />
+                <div className="w-3 h-3 rounded-full bg-[#28c840] shadow-sm" style={{ boxShadow: '0 0 0 0.5px rgba(0,0,0,0.1)' }} />
               </>
             ) : (
-              <div className="flex space-x-3 ml-auto text-gray-400">
-                <svg className="w-3 h-3" viewBox="0 0 10 10">
-                  <path d="M 0,5 L 10,5" stroke="currentColor" strokeWidth="1.5" />
+              <div className="flex space-x-4 ml-auto text-gray-500">
+                <svg className="w-3.5 h-3.5 hover:text-gray-400 transition-colors" viewBox="0 0 12 12">
+                  <path d="M 0,6 L 12,6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
-                <svg className="w-3 h-3" viewBox="0 0 10 10">
-                  <rect x="1" y="1" width="8" height="8" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                <svg className="w-3.5 h-3.5 hover:text-gray-400 transition-colors" viewBox="0 0 12 12">
+                  <rect x="1.5" y="1.5" width="9" height="9" stroke="currentColor" strokeWidth="1.5" fill="none" rx="1" />
                 </svg>
-                <svg className="w-3 h-3" viewBox="0 0 10 10">
-                  <path d="M 1,1 L 9,9 M 9,1 L 1,9" stroke="currentColor" strokeWidth="1.5" />
+                <svg className="w-3.5 h-3.5 hover:text-gray-400 transition-colors" viewBox="0 0 12 12">
+                  <path d="M 1.5,1.5 L 10.5,10.5 M 10.5,1.5 L 1.5,10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               </div>
             )}
@@ -125,7 +135,7 @@ export const CardPreview = forwardRef<HTMLDivElement, CardPreviewProps>(({ state
 
         {/* Code Content */}
         <div 
-          className="p-6 pt-4 leading-relaxed whitespace-pre-wrap break-words"
+          className="px-6 pb-6 pt-1 leading-relaxed whitespace-pre-wrap break-words"
           style={{ fontFamily: `"${state.fontFamily}", monospace` }}
         >
           {renderCommand()}
