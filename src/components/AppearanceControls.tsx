@@ -112,7 +112,7 @@ export const AppearanceControls: React.FC<Props> = ({ state, setState }) => {
         <input
           type="range"
           min="12"
-          max="24"
+          max="48"
           step="1"
           value={state.fontSize}
           onChange={(e) => handleChange('fontSize', parseInt(e.target.value))}

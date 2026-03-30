@@ -62,9 +62,9 @@ export const CardPreview = forwardRef<HTMLDivElement, CardPreviewProps>(({ state
         {lines.map((line, i) => (
           <div key={i} className="flex">
             {i === 0 ? (
-              <span className={`select-none opacity-50 mr-4 shrink-0 ${!state.showPromptSymbol ? 'hidden' : ''}`}>$&nbsp;</span>
+              <span className={`select-none opacity-50 mr-1.5 shrink-0 ${!state.showPromptSymbol ? 'hidden' : ''}`}>$&nbsp;</span>
             ) : (
-              <span className={`select-none opacity-0 mr-4 shrink-0 ${!state.showPromptSymbol ? 'hidden' : ''}`}>$&nbsp;</span>
+              <span className={`select-none opacity-0 mr-1.5 shrink-0 ${!state.showPromptSymbol ? 'hidden' : ''}`}>$&nbsp;</span>
             )}
             <div className="flex-1 min-w-0 break-words">
               {i > 0 && <span className="select-none opacity-50 inline-block" style={{ width: `${state.indentSize * 8}px` }}></span>}

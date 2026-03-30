@@ -26,7 +26,7 @@ export default function App() {
     opencodeModel: '',
     opencodeTemperature: 0.7,
     indentSize: 4,
-    fontSize: 14,
+    fontSize: 24,
     fontFamily: 'JetBrains Mono',
   });
 
@@ -161,39 +161,35 @@ export default function App() {
         </div>
 
         {/* Center: Preview */}
-        <div className="flex-1 flex items-center justify-center overflow-auto hide-scrollbar p-8 relative">
-          {/* Ambient background that matches card background */}
+        <div className="flex-1 flex items-center justify-center overflow-auto hide-scrollbar relative">
+          {/* Base background layer */}
           <div 
-            className="absolute inset-0 transition-all duration-500"
+            className="absolute inset-0 transition-all duration-700"
             style={{ 
               background: state.background === 'transparent' ? '#0a0a0a' : state.background,
             }}
           />
-          {/* Blur overlay */}
+          {/* Soft vignette - darker edges */}
           <div 
-            className="absolute inset-0 backdrop-blur-3xl opacity-60"
+            className="absolute inset-0 pointer-events-none"
             style={{ 
-              background: state.background === 'transparent' 
-                ? 'rgba(10, 10, 10, 0.8)' 
-                : state.background.includes('gradient')
-                  ? 'rgba(0, 0, 0, 0.4)'
-                  : state.background.startsWith('#') && state.background !== '#1a1a1a' && state.background !== '#ffffff'
-                    ? 'rgba(0, 0, 0, 0.3)'
-                    : state.background === '#ffffff'
-                      ? 'rgba(255, 255, 255, 0.2)'
-                      : 'rgba(0, 0, 0, 0.5)'
+              background: 'radial-gradient(ellipse 80% 80% at center, transparent 0%, rgba(0,0,0,0.5) 100%)',
             }}
           />
+          {/* Blur layer for gradient backgrounds */}
+          {state.background !== 'transparent' && state.background !== '#1a1a1a' && (
+            <div 
+              className="absolute inset-0 backdrop-blur-[100px] opacity-40"
+            />
+          )}
           {/* Subtle noise texture */}
-          <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
+          <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
           
-          {/* Grid pattern */}
-          <div className="absolute inset-0 z-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '64px 64px' }}></div>
+          {/* Very subtle grid pattern */}
+          <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)', backgroundSize: '48px 48px' }}></div>
           
-          {/* Radial glow */}
-          <div className="absolute inset-0 z-0" style={{ background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%)' }} />
-          
-          <div className="z-10 w-full flex justify-center">
+          {/* Content */}
+          <div className="z-10 w-full flex justify-center py-12 px-8">
             <CardPreview state={state} ref={cardRef} />
           </div>
         </div>

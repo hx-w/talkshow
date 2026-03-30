@@ -32,7 +32,7 @@ export const ContentControls: React.FC<Props> = ({ state, setState }) => {
               onClick={() => handleChange('agent', agent)}
               className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 state.agent === agent
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25'
+                  ? 'bg-white/15 text-white ring-2 ring-white/30 shadow-lg shadow-black/20'
                   : 'bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-white'
               }`}
             >
