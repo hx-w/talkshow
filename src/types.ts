@@ -1,4 +1,4 @@
-export type Agent = 'claude' | 'opencode' | 'aider' | 'pi' | 'qwen-code' | 'kilo';
+export type Agent = 'claude' | 'opencode' | 'aider' | 'amp' | 'qwen-code' | 'kilo';
 export type Theme = 'nord' | 'dracula' | 'monokai' | 'github-dark' | 'vercel' | 'swiss' | 'aurora' | 'sunset' | 'ocean' | 'forest' | 'candy' | 'neon';
 
 export interface AppState {
@@ -10,42 +10,43 @@ export interface AppState {
   windowControls: 'mac' | 'windows' | 'none';
   background: string;
   showPromptSymbol: boolean;
-  
-  // Claude Code specific
+
+  // Claude Code: claude -p "prompt" --dangerously-skip-permissions
   claudeModel: string;
-  claudeSkipPermissions: boolean;
-  claudeDebug: boolean;
   claudeMaxTurns: number;
-  claudePermissionMode: 'default' | 'acceptEdits' | 'plan' | 'auto' | 'bypassPermissions';
+  claudeOutputFormat: 'text' | 'json' | 'stream-json';
   claudeAppendSystemPrompt: string;
+  claudeDebug: boolean;
 
-  // OpenCode specific
+  // OpenCode: opencode -p "prompt" --yes
   opencodeModel: string;
-  opencodeFormat: 'default' | 'json';
+  opencodeProvider: string;
+  opencodeMaxTurns: number;
+  opencodeOutput: 'text' | 'json';
   opencodeThinking: boolean;
-  
-  // Aider specific
+
+  // Aider: aider --message "prompt" --yes-always
   aiderModel: string;
-  aiderAutoCommits: boolean;
-  aiderLint: boolean;
   aiderEditFormat: 'diff' | 'whole' | 'udiff' | 'architect';
+  aiderNoAutoCommits: boolean;
+  aiderLint: boolean;
   aiderNoAutoLint: boolean;
+  aiderNoStream: boolean;
 
-  // Pi (pi-mono) specific
-  piProvider: string;
-  piModel: string;
-  piThinking: 'off' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
-  piTools: string;
+  // Amp (Sourcegraph): amp --execute "prompt" --yes
+  ampModel: string;
+  ampStreamJson: boolean;
 
-  // Qwen Code specific
+  // Qwen Code: qwen-code -p "prompt" --yolo
   qwenModel: string;
-  qwenAuthType: 'openai' | 'anthropic' | 'gemini' | 'qwen-oauth';
   qwenOutputFormat: 'text' | 'json' | 'stream-json';
 
-  // Kilo specific
+  // Kilo: kilo -p "prompt" --autonomous
   kiloModel: string;
-  kiloTemperature: number;
-  
+  kiloProvider: string;
+  kiloMode: 'Orchestrator' | 'Architect' | 'Code' | 'Ask' | 'Debug';
+  kiloMaxTurns: number;
+
   // Typography
   indentSize: number;
   fontSize: number;
@@ -78,21 +79,29 @@ export const THEMES: Record<Theme, { bg: string, text: string, keyword: string, 
 };
 
 export const BACKGROUNDS = [
-  '#1a1a1a',
-  '#ffffff',
-  'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
-  'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)',
-  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
-  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-  'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
-  'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-  'linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)',
-  'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
-  'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)',
-  'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)',
-  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+  // Solids
+  '#0a0a0a',
+  '#1a1a2e',
+  '#f5f5f7',
+  // Deep & moody
+  'linear-gradient(160deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+  'linear-gradient(160deg, #0c0c1d 0%, #1a1a3e 40%, #2d1b4e 100%)',
+  'linear-gradient(135deg, #141e30 0%, #243b55 100%)',
+  // Warm sunset
+  'linear-gradient(160deg, #2d1f3d 0%, #6b3a5e 40%, #c4547a 70%, #f4a261 100%)',
+  'linear-gradient(135deg, #1f1c2c 0%, #928dab 100%)',
+  // Cool ocean
+  'linear-gradient(160deg, #0a192f 0%, #112d4e 40%, #1a6b8a 70%, #3dd5c8 100%)',
+  'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
+  // Aurora / neon
+  'linear-gradient(160deg, #0d0221 0%, #0d6b5e 35%, #6b21a8 65%, #d946ef 100%)',
+  'linear-gradient(135deg, #0a0a0a 0%, #1e3a5f 40%, #4c1d95 70%, #ec4899 100%)',
+  // Earth tones
+  'linear-gradient(160deg, #1a120b 0%, #3c2415 40%, #6b4226 70%, #d4a574 100%)',
+  'linear-gradient(135deg, #1b2838 0%, #2e4057 50%, #4a7c59 100%)',
+  // Bauhaus primaries
+  'linear-gradient(135deg, #d32f2f 0%, #f9a825 50%, #1565c0 100%)',
+  'linear-gradient(160deg, #0a0a0a 0%, #d32f2f 50%, #0a0a0a 100%)',
+  // Transparent
   'transparent'
 ];
