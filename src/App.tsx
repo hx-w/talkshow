@@ -4,44 +4,77 @@ import { AppState, BACKGROUNDS } from './types';
 import { ContentControls } from './components/ContentControls';
 import { AppearanceControls } from './components/AppearanceControls';
 import { CardPreview } from './components/CardPreview';
-import { Copy, Download, Terminal, Check, Mic, Menu, X, Palette, Type } from 'lucide-react';
+import { Copy, Download, Terminal, Check, X, Palette, Type } from 'lucide-react';
+
+const DEFAULT_PROMPT = `Refactor src/auth/session.ts to use the new TokenStore API.
+Keep the existing public surface identical, add unit tests, and run typecheck before you finish.`;
+
+// "dusk" mesh gradient — calm cool tones, doesn't compete with the card
+const DEFAULT_BACKGROUND =
+  'radial-gradient(at 100% 0%, rgba(129,140,248,0.24) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(244,114,182,0.18) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(45,212,191,0.16) 0px, transparent 60%), #0c0a18';
 
 export default function App() {
   const [state, setState] = useState<AppState>({
     agent: 'claude',
-    prompt: 'You are an expert developer...',
-    theme: 'nord',
-    padding: 64,
+    prompt: DEFAULT_PROMPT,
+    theme: 'dracula',
+    padding: 56,
     dropShadow: true,
     windowControls: 'mac',
-    background: BACKGROUNDS[0],
+    background: DEFAULT_BACKGROUND,
     showPromptSymbol: true,
-    claudeModel: '',
+
+    claudeModel: 'claude-sonnet-4-6',
     claudeMaxTurns: 0,
     claudeOutputFormat: 'text',
     claudeAppendSystemPrompt: '',
-    claudeDebug: false,
+    claudePermissionMode: 'default',
+    claudeAllowedTools: '',
+    claudeAddDir: '',
+    claudeVerbose: false,
+
+    codexModel: '',
+    codexSandbox: 'workspace-write',
+    codexApproval: 'full-auto',
+    codexJson: false,
+    codexCd: '',
+    codexImage: '',
+
+    geminiModel: '',
+    geminiOutputFormat: 'text',
+    geminiDebug: false,
+    geminiAllFiles: false,
+    geminiSandbox: false,
+
     opencodeModel: '',
-    opencodeProvider: '',
-    opencodeMaxTurns: 0,
-    opencodeOutput: 'text',
-    opencodeThinking: false,
+    opencodeAgent: '',
+    opencodeFormat: 'default',
+    opencodeContinue: false,
+    opencodeShare: false,
+
     aiderModel: '',
-    aiderEditFormat: 'diff',
+    aiderArchitect: false,
     aiderNoAutoCommits: false,
-    aiderLint: false,
-    aiderNoAutoLint: false,
+    aiderNoGit: false,
     aiderNoStream: true,
-    ampModel: '',
-    ampStreamJson: false,
+    aiderRead: '',
+    aiderMapTokens: 0,
+
+    ampStream: 'off',
+    ampSettingsFile: '',
+
     qwenModel: '',
     qwenOutputFormat: 'text',
+    qwenDebug: false,
+    qwenAllFiles: false,
+
     kiloModel: '',
-    kiloProvider: '',
-    kiloMode: 'Code',
-    kiloMaxTurns: 0,
+    kiloAgent: '',
+    kiloFormat: 'default',
+    kiloContinue: false,
+
     indentSize: 4,
-    fontSize: 24,
+    fontSize: 22,
     fontFamily: 'JetBrains Mono',
   });
 
@@ -51,6 +84,7 @@ export default function App() {
   const [mobileDrawer, setMobileDrawer] = useState<'content' | 'appearance' | null>(null);
 
   const cardRef = useRef<HTMLDivElement>(null);
+
   const getCommandString = () => {
     const promptText = state.prompt ? `"${state.prompt.replace(/"/g, '\\"')}"` : '""';
     const lines: string[] = [];
@@ -60,50 +94,88 @@ export default function App() {
       lines.push('claude');
       if (state.claudeModel) lines.push(`${indent}--model ${state.claudeModel}`);
       lines.push(`${indent}--dangerously-skip-permissions`);
+      if (state.claudePermissionMode !== 'default')
+        lines.push(`${indent}--permission-mode ${state.claudePermissionMode}`);
       if (state.claudeMaxTurns > 0) lines.push(`${indent}--max-turns ${state.claudeMaxTurns}`);
-      if (state.claudeOutputFormat !== 'text') lines.push(`${indent}--output-format ${state.claudeOutputFormat}`);
-      if (state.claudeAppendSystemPrompt) lines.push(`${indent}--append-system-prompt "${state.claudeAppendSystemPrompt.replace(/"/g, '\\"')}"`);
-      if (state.claudeDebug) lines.push(`${indent}--debug`);
+      if (state.claudeOutputFormat !== 'text')
+        lines.push(`${indent}--output-format ${state.claudeOutputFormat}`);
+      if (state.claudeAllowedTools)
+        lines.push(`${indent}--allowedTools "${state.claudeAllowedTools}"`);
+      if (state.claudeAddDir) lines.push(`${indent}--add-dir ${state.claudeAddDir}`);
+      if (state.claudeAppendSystemPrompt)
+        lines.push(`${indent}--append-system-prompt "${state.claudeAppendSystemPrompt.replace(/"/g, '\\"')}"`);
+      if (state.claudeVerbose) lines.push(`${indent}--verbose`);
+      lines.push(`${indent}-p ${promptText}`);
+    } else if (state.agent === 'codex') {
+      lines.push('codex exec');
+      if (state.codexModel) lines.push(`${indent}--model ${state.codexModel}`);
+      if (state.codexApproval === 'full-auto') lines.push(`${indent}--full-auto`);
+      else if (state.codexApproval === 'bypass')
+        lines.push(`${indent}--dangerously-bypass-approvals-and-sandbox`);
+      else lines.push(`${indent}--ask-for-approval`);
+      if (state.codexApproval !== 'bypass')
+        lines.push(`${indent}--sandbox ${state.codexSandbox}`);
+      if (state.codexCd) lines.push(`${indent}--cd ${state.codexCd}`);
+      if (state.codexImage) lines.push(`${indent}--image ${state.codexImage}`);
+      if (state.codexJson) lines.push(`${indent}--json`);
+      lines.push(`${indent}${promptText}`);
+    } else if (state.agent === 'gemini') {
+      lines.push('gemini');
+      if (state.geminiModel) lines.push(`${indent}--model ${state.geminiModel}`);
+      lines.push(`${indent}--yolo`);
+      if (state.geminiOutputFormat !== 'text')
+        lines.push(`${indent}--output-format ${state.geminiOutputFormat}`);
+      if (state.geminiSandbox) lines.push(`${indent}--sandbox`);
+      if (state.geminiAllFiles) lines.push(`${indent}--all-files`);
+      if (state.geminiDebug) lines.push(`${indent}--debug`);
       lines.push(`${indent}-p ${promptText}`);
     } else if (state.agent === 'opencode') {
-      lines.push('opencode');
-      if (state.opencodeProvider) lines.push(`${indent}--provider ${state.opencodeProvider}`);
+      lines.push('opencode run');
       if (state.opencodeModel) lines.push(`${indent}--model ${state.opencodeModel}`);
-      lines.push(`${indent}--yes`);
-      if (state.opencodeMaxTurns > 0) lines.push(`${indent}--max-turns ${state.opencodeMaxTurns}`);
-      if (state.opencodeOutput !== 'text') lines.push(`${indent}--output ${state.opencodeOutput}`);
-      if (state.opencodeThinking) lines.push(`${indent}--thinking`);
-      lines.push(`${indent}-p ${promptText}`);
+      if (state.opencodeAgent) lines.push(`${indent}--agent ${state.opencodeAgent}`);
+      lines.push(`${indent}--dangerously-skip-permissions`);
+      if (state.opencodeContinue) lines.push(`${indent}--continue`);
+      if (state.opencodeShare) lines.push(`${indent}--share`);
+      if (state.opencodeFormat !== 'default')
+        lines.push(`${indent}--format ${state.opencodeFormat}`);
+      lines.push(`${indent}${promptText}`);
     } else if (state.agent === 'aider') {
       lines.push('aider');
       if (state.aiderModel) lines.push(`${indent}--model ${state.aiderModel}`);
-      if (state.aiderEditFormat !== 'diff') lines.push(`${indent}--edit-format ${state.aiderEditFormat}`);
+      if (state.aiderArchitect) lines.push(`${indent}--architect`);
       lines.push(`${indent}--yes-always`);
       if (state.aiderNoAutoCommits) lines.push(`${indent}--no-auto-commits`);
-      if (state.aiderLint) lines.push(`${indent}--lint`);
-      if (state.aiderNoAutoLint) lines.push(`${indent}--no-auto-lint`);
+      if (state.aiderNoGit) lines.push(`${indent}--no-git`);
       if (state.aiderNoStream) lines.push(`${indent}--no-stream`);
+      if (state.aiderRead) lines.push(`${indent}--read ${state.aiderRead}`);
+      if (state.aiderMapTokens > 0)
+        lines.push(`${indent}--map-tokens ${state.aiderMapTokens}`);
       lines.push(`${indent}--message ${promptText}`);
     } else if (state.agent === 'amp') {
       lines.push('amp');
-      if (state.ampModel) lines.push(`${indent}--model ${state.ampModel}`);
-      lines.push(`${indent}--yes`);
-      if (state.ampStreamJson) lines.push(`${indent}--stream-json`);
-      lines.push(`${indent}--execute ${promptText}`);
-    } else if (state.agent === 'qwen-code') {
-      lines.push('qwen-code');
+      lines.push(`${indent}--dangerously-allow-all`);
+      if (state.ampStream === 'json') lines.push(`${indent}--stream-json`);
+      else if (state.ampStream === 'json-thinking')
+        lines.push(`${indent}--stream-json-thinking`);
+      if (state.ampSettingsFile) lines.push(`${indent}--settings-file ${state.ampSettingsFile}`);
+      lines.push(`${indent}-x ${promptText}`);
+    } else if (state.agent === 'qwen') {
+      lines.push('qwen');
       if (state.qwenModel) lines.push(`${indent}--model ${state.qwenModel}`);
       lines.push(`${indent}--yolo`);
-      if (state.qwenOutputFormat !== 'text') lines.push(`${indent}--output-format ${state.qwenOutputFormat}`);
+      if (state.qwenOutputFormat !== 'text')
+        lines.push(`${indent}--output-format ${state.qwenOutputFormat}`);
+      if (state.qwenAllFiles) lines.push(`${indent}--all-files`);
+      if (state.qwenDebug) lines.push(`${indent}--debug`);
       lines.push(`${indent}-p ${promptText}`);
     } else if (state.agent === 'kilo') {
-      lines.push('kilo');
-      if (state.kiloProvider) lines.push(`${indent}--provider ${state.kiloProvider}`);
+      lines.push('kilo run');
       if (state.kiloModel) lines.push(`${indent}--model ${state.kiloModel}`);
-      lines.push(`${indent}--autonomous`);
-      if (state.kiloMode !== 'Code') lines.push(`${indent}--mode ${state.kiloMode}`);
-      if (state.kiloMaxTurns > 0) lines.push(`${indent}--max-turns ${state.kiloMaxTurns}`);
-      lines.push(`${indent}-p ${promptText}`);
+      if (state.kiloAgent) lines.push(`${indent}--agent ${state.kiloAgent}`);
+      lines.push(`${indent}--auto`);
+      if (state.kiloContinue) lines.push(`${indent}--continue`);
+      if (state.kiloFormat !== 'default') lines.push(`${indent}--format ${state.kiloFormat}`);
+      lines.push(`${indent}${promptText}`);
     }
 
     return lines.join(' \\\n');
@@ -149,18 +221,17 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-bauhaus-bg)] font-sans text-[var(--color-bauhaus-text)] flex flex-col relative overflow-hidden">
-      {/* Bauhaus geometric decorations */}
-      <div className="bauhaus-triangle-tr" style={{ width: 120, height: 120 }} />
-      <div className="bauhaus-circle-bl" style={{ width: 80, height: 80, bottom: -25, left: -25 }} />
-      <div className="absolute top-1/2 right-0 w-[3px] h-32 bg-[var(--color-bauhaus-yellow)] opacity-10 pointer-events-none" />
-      <div className="absolute bottom-20 left-1/3 w-6 h-6 bg-[var(--color-bauhaus-blue)] opacity-[0.06] pointer-events-none" />
+    <div className="bg-[var(--color-bauhaus-bg)] font-sans text-[var(--color-bauhaus-text)] flex flex-col relative overflow-hidden" style={{ height: '100dvh' }}>
+      {/* Subtle Bauhaus decorations on the chrome only — kept off the preview area */}
 
       {/* Header */}
-      <header className="h-12 flex items-center justify-between px-4 md:px-6 bg-[var(--color-bauhaus-surface)] border-b-2 border-[var(--color-bauhaus-border)] shrink-0 z-30 sticky top-0">
+      <header className="h-12 flex items-center justify-between px-4 md:px-6 bg-[var(--color-bauhaus-surface)] border-b-2 border-[var(--color-bauhaus-border)] shrink-0 z-30">
         <div className="flex items-center gap-2">
           <div className="bauhaus-square-accent" />
           <h1 className="text-sm font-black tracking-[3px] uppercase text-white">TalkShow</h1>
+          <span className="hidden sm:inline text-[10px] font-semibold tracking-[2px] uppercase text-[var(--color-bauhaus-text-dim)] ml-1.5 pl-2 border-l border-[var(--color-bauhaus-border-light)]">
+            Prompts → Cards
+          </span>
         </div>
         <div className="hidden md:flex items-center gap-1.5">
           <button className="bauhaus-btn flex items-center gap-1.5" onClick={handleCopyCommand}>
@@ -179,28 +250,37 @@ export default function App() {
             <span>{exported ? 'Done' : 'Export'}</span>
           </button>
         </div>
-        {/* Mobile: hamburger for export actions */}
+        {/* Mobile: just an export button — copy/image live in the bottom tab bar */}
         <div className="flex md:hidden items-center gap-1.5">
-          <button className="bauhaus-btn bauhaus-btn-primary flex items-center gap-1" onClick={handleDownloadImage}>
-            <Download className="w-3 h-3" />
-            <span>Export</span>
+          <button
+            className={`bauhaus-btn flex items-center gap-1 ${exported ? 'border-green-500 text-green-400' : 'bauhaus-btn-primary'}`}
+            onClick={handleDownloadImage}
+          >
+            {exported ? <Check className="w-3 h-3" /> : <Download className="w-3 h-3" />}
+            <span>{exported ? 'Done' : 'PNG'}</span>
           </button>
         </div>
       </header>
 
       {/* Main Workspace - Desktop: 3 columns, Mobile: preview only */}
-      <div className="flex flex-1 relative">
+      <div className="flex flex-1 relative min-h-0">
         {/* Background layer */}
         <div
           className="absolute inset-0 transition-all duration-700 pointer-events-none"
           style={{
-            background: state.background === 'transparent' ? 'linear-gradient(135deg, #0a0a0a 0%, #111 50%, #0a0a0a 100%)' : state.background,
+            background:
+              state.background === 'transparent'
+                ? 'radial-gradient(ellipse at center, #131316 0%, #0a0a0c 100%)'
+                : state.background,
           }}
         />
-        {/* Subtle grid pattern */}
+        {/* Quiet vignette to anchor the card center */}
         <div
-          className="absolute inset-0 opacity-[0.04] pointer-events-none"
-          style={{ backgroundImage: 'linear-gradient(var(--color-bauhaus-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-bauhaus-border) 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.25) 100%)',
+          }}
         />
 
         {/* Left Panel: Content & Agent - hidden on mobile */}
@@ -213,7 +293,7 @@ export default function App() {
         </div>
 
         {/* Center: Preview */}
-        <div className="flex-1 flex items-center justify-center overflow-auto hide-scrollbar relative z-10 p-4 md:p-6 pb-20 md:pb-6">
+        <div className="flex-1 flex items-center justify-center overflow-auto hide-scrollbar relative z-10 p-3 md:p-6 pb-24 md:pb-6">
           <CardPreview state={state} ref={cardRef} />
         </div>
 
@@ -235,7 +315,11 @@ export default function App() {
         </button>
         <button onClick={handleCopyCommand}>
           <Terminal className="w-4 h-4" style={{ color: copiedCmd ? '#4ade80' : 'var(--color-bauhaus-text-muted)' }} />
-          <span style={{ color: copiedCmd ? '#4ade80' : 'var(--color-bauhaus-text-muted)' }}>{copiedCmd ? 'Copied' : 'Copy'}</span>
+          <span style={{ color: copiedCmd ? '#4ade80' : 'var(--color-bauhaus-text-muted)' }}>{copiedCmd ? 'Copied' : 'Command'}</span>
+        </button>
+        <button onClick={handleCopyImage}>
+          <Copy className="w-4 h-4" style={{ color: copiedImg ? '#4ade80' : 'var(--color-bauhaus-text-muted)' }} />
+          <span style={{ color: copiedImg ? '#4ade80' : 'var(--color-bauhaus-text-muted)' }}>{copiedImg ? 'Copied' : 'Image'}</span>
         </button>
         <button onClick={() => setMobileDrawer(mobileDrawer === 'appearance' ? null : 'appearance')}>
           <Palette className="w-4 h-4" style={{ color: mobileDrawer === 'appearance' ? 'var(--color-bauhaus-blue)' : 'var(--color-bauhaus-text-muted)' }} />
@@ -248,11 +332,15 @@ export default function App() {
 
       {/* Mobile drawer panel */}
       <div className={`drawer-panel hide-scrollbar ${mobileDrawer ? 'open' : ''}`}>
-        <div className="flex items-center justify-between px-4 py-3 border-b-2 border-[var(--color-bauhaus-border)]">
-          <span className="text-sm font-bold uppercase tracking-widest text-white">
-            {mobileDrawer === 'content' ? 'Content' : 'Appearance'}
-          </span>
-          <button onClick={() => setMobileDrawer(null)} className="text-[var(--color-bauhaus-text-muted)]">
+        <div className="drawer-handle" />
+        <div className="flex items-center justify-between px-4 py-2.5 border-b-2 border-[var(--color-bauhaus-border)] sticky top-0 bg-[var(--color-bauhaus-surface)] z-10">
+          <div className="flex items-center gap-2">
+            <div className={`bauhaus-dot ${mobileDrawer === 'content' ? 'bg-[var(--color-bauhaus-red)]' : 'bg-[var(--color-bauhaus-blue)]'}`} />
+            <span className="text-[11px] font-bold uppercase tracking-[2px] text-white">
+              {mobileDrawer === 'content' ? 'Content' : 'Appearance'}
+            </span>
+          </div>
+          <button onClick={() => setMobileDrawer(null)} className="text-[var(--color-bauhaus-text-muted)] -m-2 p-2">
             <X className="w-5 h-5" />
           </button>
         </div>

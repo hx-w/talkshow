@@ -12,58 +12,96 @@ export const CardPreview = forwardRef<HTMLDivElement, CardPreviewProps>(({ state
     const promptText = state.prompt ? `"${state.prompt.replace(/"/g, '\\"')}"` : '""';
     const lines: React.ReactNode[] = [];
 
-    const addLine = (content: React.ReactNode) => {
-      lines.push(content);
-    };
+    const k = (s: string) => <span style={{ color: theme.keyword }}>{s}</span>;
+    const c = (s: string) => <span style={{ color: theme.comment }}>{s}</span>;
+    const v = (s: string) => <span style={{ color: theme.string }}>{s}</span>;
 
     if (state.agent === 'claude') {
-      addLine(<span style={{ color: theme.keyword }}>claude</span>);
-      if (state.claudeModel) addLine(<><span style={{ color: theme.comment }}>--model </span><span style={{ color: theme.string }}>{state.claudeModel}</span></>);
-      addLine(<span style={{ color: theme.comment }}>--dangerously-skip-permissions</span>);
-      if (state.claudeMaxTurns > 0) addLine(<><span style={{ color: theme.comment }}>--max-turns </span><span style={{ color: theme.string }}>{state.claudeMaxTurns}</span></>);
-      if (state.claudeOutputFormat !== 'text') addLine(<><span style={{ color: theme.comment }}>--output-format </span><span style={{ color: theme.string }}>{state.claudeOutputFormat}</span></>);
-      if (state.claudeAppendSystemPrompt) addLine(<><span style={{ color: theme.comment }}>--append-system-prompt </span><span style={{ color: theme.string }}>"{state.claudeAppendSystemPrompt}"</span></>);
-      if (state.claudeDebug) addLine(<span style={{ color: theme.comment }}>--debug</span>);
-      addLine(<><span style={{ color: theme.comment }}>-p </span><span style={{ color: theme.string }}>{promptText}</span></>);
+      lines.push(k('claude'));
+      if (state.claudeModel) lines.push(<>{c('--model ')}{v(state.claudeModel)}</>);
+      lines.push(c('--dangerously-skip-permissions'));
+      if (state.claudePermissionMode !== 'default')
+        lines.push(<>{c('--permission-mode ')}{v(state.claudePermissionMode)}</>);
+      if (state.claudeMaxTurns > 0) lines.push(<>{c('--max-turns ')}{v(String(state.claudeMaxTurns))}</>);
+      if (state.claudeOutputFormat !== 'text')
+        lines.push(<>{c('--output-format ')}{v(state.claudeOutputFormat)}</>);
+      if (state.claudeAllowedTools)
+        lines.push(<>{c('--allowedTools ')}{v(`"${state.claudeAllowedTools}"`)}</>);
+      if (state.claudeAddDir)
+        lines.push(<>{c('--add-dir ')}{v(state.claudeAddDir)}</>);
+      if (state.claudeAppendSystemPrompt)
+        lines.push(<>{c('--append-system-prompt ')}{v(`"${state.claudeAppendSystemPrompt}"`)}</>);
+      if (state.claudeVerbose) lines.push(c('--verbose'));
+      lines.push(<>{c('-p ')}{v(promptText)}</>);
+    } else if (state.agent === 'codex') {
+      lines.push(<>{k('codex')} {k('exec')}</>);
+      if (state.codexModel) lines.push(<>{c('--model ')}{v(state.codexModel)}</>);
+      if (state.codexApproval === 'full-auto') lines.push(c('--full-auto'));
+      else if (state.codexApproval === 'bypass') lines.push(c('--dangerously-bypass-approvals-and-sandbox'));
+      else lines.push(c('--ask-for-approval'));
+      if (state.codexApproval !== 'bypass')
+        lines.push(<>{c('--sandbox ')}{v(state.codexSandbox)}</>);
+      if (state.codexCd) lines.push(<>{c('--cd ')}{v(state.codexCd)}</>);
+      if (state.codexImage) lines.push(<>{c('--image ')}{v(state.codexImage)}</>);
+      if (state.codexJson) lines.push(c('--json'));
+      lines.push(v(promptText));
+    } else if (state.agent === 'gemini') {
+      lines.push(k('gemini'));
+      if (state.geminiModel) lines.push(<>{c('--model ')}{v(state.geminiModel)}</>);
+      lines.push(c('--yolo'));
+      if (state.geminiOutputFormat !== 'text')
+        lines.push(<>{c('--output-format ')}{v(state.geminiOutputFormat)}</>);
+      if (state.geminiSandbox) lines.push(c('--sandbox'));
+      if (state.geminiAllFiles) lines.push(c('--all-files'));
+      if (state.geminiDebug) lines.push(c('--debug'));
+      lines.push(<>{c('-p ')}{v(promptText)}</>);
     } else if (state.agent === 'opencode') {
-      addLine(<span style={{ color: theme.keyword }}>opencode</span>);
-      if (state.opencodeProvider) addLine(<><span style={{ color: theme.comment }}>--provider </span><span style={{ color: theme.string }}>{state.opencodeProvider}</span></>);
-      if (state.opencodeModel) addLine(<><span style={{ color: theme.comment }}>--model </span><span style={{ color: theme.string }}>{state.opencodeModel}</span></>);
-      addLine(<span style={{ color: theme.comment }}>--yes</span>);
-      if (state.opencodeMaxTurns > 0) addLine(<><span style={{ color: theme.comment }}>--max-turns </span><span style={{ color: theme.string }}>{state.opencodeMaxTurns}</span></>);
-      if (state.opencodeOutput !== 'text') addLine(<><span style={{ color: theme.comment }}>--output </span><span style={{ color: theme.string }}>{state.opencodeOutput}</span></>);
-      if (state.opencodeThinking) addLine(<span style={{ color: theme.comment }}>--thinking</span>);
-      addLine(<><span style={{ color: theme.comment }}>-p </span><span style={{ color: theme.string }}>{promptText}</span></>);
+      lines.push(<>{k('opencode')} {k('run')}</>);
+      if (state.opencodeModel) lines.push(<>{c('--model ')}{v(state.opencodeModel)}</>);
+      if (state.opencodeAgent) lines.push(<>{c('--agent ')}{v(state.opencodeAgent)}</>);
+      lines.push(c('--dangerously-skip-permissions'));
+      if (state.opencodeContinue) lines.push(c('--continue'));
+      if (state.opencodeShare) lines.push(c('--share'));
+      if (state.opencodeFormat !== 'default')
+        lines.push(<>{c('--format ')}{v(state.opencodeFormat)}</>);
+      lines.push(v(promptText));
     } else if (state.agent === 'aider') {
-      addLine(<span style={{ color: theme.keyword }}>aider</span>);
-      if (state.aiderModel) addLine(<><span style={{ color: theme.comment }}>--model </span><span style={{ color: theme.string }}>{state.aiderModel}</span></>);
-      if (state.aiderEditFormat !== 'diff') addLine(<><span style={{ color: theme.comment }}>--edit-format </span><span style={{ color: theme.string }}>{state.aiderEditFormat}</span></>);
-      addLine(<span style={{ color: theme.comment }}>--yes-always</span>);
-      if (state.aiderNoAutoCommits) addLine(<span style={{ color: theme.comment }}>--no-auto-commits</span>);
-      if (state.aiderLint) addLine(<span style={{ color: theme.comment }}>--lint</span>);
-      if (state.aiderNoAutoLint) addLine(<span style={{ color: theme.comment }}>--no-auto-lint</span>);
-      if (state.aiderNoStream) addLine(<span style={{ color: theme.comment }}>--no-stream</span>);
-      addLine(<><span style={{ color: theme.comment }}>--message </span><span style={{ color: theme.string }}>{promptText}</span></>);
+      lines.push(k('aider'));
+      if (state.aiderModel) lines.push(<>{c('--model ')}{v(state.aiderModel)}</>);
+      if (state.aiderArchitect) lines.push(c('--architect'));
+      lines.push(c('--yes-always'));
+      if (state.aiderNoAutoCommits) lines.push(c('--no-auto-commits'));
+      if (state.aiderNoGit) lines.push(c('--no-git'));
+      if (state.aiderNoStream) lines.push(c('--no-stream'));
+      if (state.aiderRead) lines.push(<>{c('--read ')}{v(state.aiderRead)}</>);
+      if (state.aiderMapTokens > 0)
+        lines.push(<>{c('--map-tokens ')}{v(String(state.aiderMapTokens))}</>);
+      lines.push(<>{c('--message ')}{v(promptText)}</>);
     } else if (state.agent === 'amp') {
-      addLine(<span style={{ color: theme.keyword }}>amp</span>);
-      if (state.ampModel) addLine(<><span style={{ color: theme.comment }}>--model </span><span style={{ color: theme.string }}>{state.ampModel}</span></>);
-      addLine(<span style={{ color: theme.comment }}>--yes</span>);
-      if (state.ampStreamJson) addLine(<span style={{ color: theme.comment }}>--stream-json</span>);
-      addLine(<><span style={{ color: theme.comment }}>--execute </span><span style={{ color: theme.string }}>{promptText}</span></>);
-    } else if (state.agent === 'qwen-code') {
-      addLine(<span style={{ color: theme.keyword }}>qwen-code</span>);
-      if (state.qwenModel) addLine(<><span style={{ color: theme.comment }}>--model </span><span style={{ color: theme.string }}>{state.qwenModel}</span></>);
-      addLine(<span style={{ color: theme.comment }}>--yolo</span>);
-      if (state.qwenOutputFormat !== 'text') addLine(<><span style={{ color: theme.comment }}>--output-format </span><span style={{ color: theme.string }}>{state.qwenOutputFormat}</span></>);
-      addLine(<><span style={{ color: theme.comment }}>-p </span><span style={{ color: theme.string }}>{promptText}</span></>);
+      lines.push(k('amp'));
+      lines.push(c('--dangerously-allow-all'));
+      if (state.ampStream === 'json') lines.push(c('--stream-json'));
+      else if (state.ampStream === 'json-thinking') lines.push(c('--stream-json-thinking'));
+      if (state.ampSettingsFile) lines.push(<>{c('--settings-file ')}{v(state.ampSettingsFile)}</>);
+      lines.push(<>{c('-x ')}{v(promptText)}</>);
+    } else if (state.agent === 'qwen') {
+      lines.push(k('qwen'));
+      if (state.qwenModel) lines.push(<>{c('--model ')}{v(state.qwenModel)}</>);
+      lines.push(c('--yolo'));
+      if (state.qwenOutputFormat !== 'text')
+        lines.push(<>{c('--output-format ')}{v(state.qwenOutputFormat)}</>);
+      if (state.qwenAllFiles) lines.push(c('--all-files'));
+      if (state.qwenDebug) lines.push(c('--debug'));
+      lines.push(<>{c('-p ')}{v(promptText)}</>);
     } else if (state.agent === 'kilo') {
-      addLine(<span style={{ color: theme.keyword }}>kilo</span>);
-      if (state.kiloProvider) addLine(<><span style={{ color: theme.comment }}>--provider </span><span style={{ color: theme.string }}>{state.kiloProvider}</span></>);
-      if (state.kiloModel) addLine(<><span style={{ color: theme.comment }}>--model </span><span style={{ color: theme.string }}>{state.kiloModel}</span></>);
-      addLine(<span style={{ color: theme.comment }}>--autonomous</span>);
-      if (state.kiloMode !== 'Code') addLine(<><span style={{ color: theme.comment }}>--mode </span><span style={{ color: theme.string }}>{state.kiloMode}</span></>);
-      if (state.kiloMaxTurns > 0) addLine(<><span style={{ color: theme.comment }}>--max-turns </span><span style={{ color: theme.string }}>{state.kiloMaxTurns}</span></>);
-      addLine(<><span style={{ color: theme.comment }}>-p </span><span style={{ color: theme.string }}>{promptText}</span></>);
+      lines.push(<>{k('kilo')} {k('run')}</>);
+      if (state.kiloModel) lines.push(<>{c('--model ')}{v(state.kiloModel)}</>);
+      if (state.kiloAgent) lines.push(<>{c('--agent ')}{v(state.kiloAgent)}</>);
+      lines.push(c('--auto'));
+      if (state.kiloContinue) lines.push(c('--continue'));
+      if (state.kiloFormat !== 'default')
+        lines.push(<>{c('--format ')}{v(state.kiloFormat)}</>);
+      lines.push(v(promptText));
     }
 
     return (
@@ -91,7 +129,7 @@ export const CardPreview = forwardRef<HTMLDivElement, CardPreviewProps>(({ state
       ref={ref}
       className="flex items-center justify-center transition-all duration-300 ease-out"
       style={{
-        background: state.background === 'transparent' ? 'linear-gradient(135deg, #0a0a0a 0%, #111 100%)' : state.background,
+        background: state.background === 'transparent' ? '#111114' : state.background,
         padding: `${state.padding}px`,
       }}
     >
@@ -100,23 +138,17 @@ export const CardPreview = forwardRef<HTMLDivElement, CardPreviewProps>(({ state
         style={{
           backgroundColor: theme.bg,
           color: theme.text,
-          borderRadius: '20px',
-          border: theme.border ? `1px solid ${theme.border}` : '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '14px',
+          border: theme.border
+            ? `1px solid ${theme.border}`
+            : '1px solid rgba(255,255,255,0.06)',
           boxShadow: state.dropShadow
-            ? '0 20px 60px -15px rgba(0, 0, 0, 0.5), 0 8px 24px -8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.06)'
-            : 'inset 0 1px 0 rgba(255,255,255,0.06)',
+            ? '0 1px 0 rgba(255,255,255,0.04) inset, 0 24px 48px -24px rgba(0,0,0,0.55), 0 6px 14px -6px rgba(0,0,0,0.35)'
+            : '0 1px 0 rgba(255,255,255,0.04) inset',
           fontSize: `${state.fontSize}px`,
           lineHeight: 1.7,
-          backdropFilter: 'blur(20px)',
         }}
       >
-        {/* Subtle inner highlight */}
-        <div
-          className="absolute inset-0 pointer-events-none rounded-[20px]"
-          style={{
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 40%)',
-          }}
-        />
         {/* Window Controls */}
         {state.windowControls !== 'none' && (
           <div className="flex items-center px-6 pt-5 pb-2 space-x-2.5">

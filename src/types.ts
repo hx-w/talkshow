@@ -1,5 +1,26 @@
-export type Agent = 'claude' | 'opencode' | 'aider' | 'amp' | 'qwen-code' | 'kilo';
-export type Theme = 'nord' | 'dracula' | 'monokai' | 'github-dark' | 'vercel' | 'swiss' | 'aurora' | 'sunset' | 'ocean' | 'forest' | 'candy' | 'neon';
+export type Agent =
+  | 'claude'
+  | 'codex'
+  | 'gemini'
+  | 'opencode'
+  | 'aider'
+  | 'amp'
+  | 'qwen'
+  | 'kilo';
+
+export type Theme =
+  | 'nord'
+  | 'dracula'
+  | 'monokai'
+  | 'github-dark'
+  | 'vercel'
+  | 'swiss'
+  | 'aurora'
+  | 'sunset'
+  | 'ocean'
+  | 'forest'
+  | 'candy'
+  | 'neon';
 
 export interface AppState {
   agent: Agent;
@@ -11,41 +32,70 @@ export interface AppState {
   background: string;
   showPromptSymbol: boolean;
 
-  // Claude Code: claude -p "prompt" --dangerously-skip-permissions
+  // Claude Code: claude -p "..." --dangerously-skip-permissions
+  // https://code.claude.com/docs/en/cli-reference
   claudeModel: string;
   claudeMaxTurns: number;
   claudeOutputFormat: 'text' | 'json' | 'stream-json';
   claudeAppendSystemPrompt: string;
-  claudeDebug: boolean;
+  claudePermissionMode: 'default' | 'acceptEdits' | 'plan' | 'bypassPermissions';
+  claudeAllowedTools: string;
+  claudeAddDir: string;
+  claudeVerbose: boolean;
 
-  // OpenCode: opencode -p "prompt" --yes
+  // OpenAI Codex CLI: codex exec "..." [--full-auto | -s ...]
+  // https://github.com/openai/codex
+  codexModel: string;
+  codexSandbox: 'read-only' | 'workspace-write' | 'danger-full-access';
+  codexApproval: 'full-auto' | 'ask-for-approval' | 'bypass';
+  codexJson: boolean;
+  codexCd: string;
+  codexImage: string;
+
+  // Gemini CLI: gemini -p "..." --yolo
+  // https://github.com/google-gemini/gemini-cli
+  geminiModel: string;
+  geminiOutputFormat: 'text' | 'json' | 'stream-json';
+  geminiDebug: boolean;
+  geminiAllFiles: boolean;
+  geminiSandbox: boolean;
+
+  // OpenCode: opencode run "..." --dangerously-skip-permissions
+  // https://opencode.ai/docs/cli
   opencodeModel: string;
-  opencodeProvider: string;
-  opencodeMaxTurns: number;
-  opencodeOutput: 'text' | 'json';
-  opencodeThinking: boolean;
+  opencodeAgent: string;
+  opencodeFormat: 'default' | 'json';
+  opencodeContinue: boolean;
+  opencodeShare: boolean;
 
-  // Aider: aider --message "prompt" --yes-always
+  // Aider: aider --message "..." --yes-always
+  // https://aider.chat/docs/config/options.html
   aiderModel: string;
-  aiderEditFormat: 'diff' | 'whole' | 'udiff' | 'architect';
+  aiderArchitect: boolean;
   aiderNoAutoCommits: boolean;
-  aiderLint: boolean;
-  aiderNoAutoLint: boolean;
+  aiderNoGit: boolean;
   aiderNoStream: boolean;
+  aiderRead: string;
+  aiderMapTokens: number;
 
-  // Amp (Sourcegraph): amp --execute "prompt" --yes
-  ampModel: string;
-  ampStreamJson: boolean;
+  // Amp (Sourcegraph): amp -x "..." --dangerously-allow-all
+  // https://ampcode.com/manual
+  ampStream: 'off' | 'json' | 'json-thinking';
+  ampSettingsFile: string;
 
-  // Qwen Code: qwen-code -p "prompt" --yolo
+  // Qwen Code: qwen -p "..." --yolo
+  // https://github.com/QwenLM/qwen-code (fork of gemini-cli)
   qwenModel: string;
   qwenOutputFormat: 'text' | 'json' | 'stream-json';
+  qwenDebug: boolean;
+  qwenAllFiles: boolean;
 
-  // Kilo: kilo -p "prompt" --autonomous
+  // Kilo Code: kilo run "..." --auto
+  // https://kilo.ai/docs/cli (fork of OpenCode)
   kiloModel: string;
-  kiloProvider: string;
-  kiloMode: 'Orchestrator' | 'Architect' | 'Code' | 'Ask' | 'Debug';
-  kiloMaxTurns: number;
+  kiloAgent: string;
+  kiloFormat: 'default' | 'json';
+  kiloContinue: boolean;
 
   // Typography
   indentSize: number;
@@ -78,30 +128,43 @@ export const THEMES: Record<Theme, { bg: string, text: string, keyword: string, 
   neon: { bg: '#0a0a1a', text: '#e0e0ff', keyword: '#00f5ff', string: '#ff10f0', comment: '#7b68ee', border: '#1e1e3a' },
 };
 
+// Stage backdrops for the card. Designed to be quiet enough that the card
+// stays the hero — soft mesh gradients and tonal radials, low saturation,
+// no hard color edges that would clash with a syntax-highlighted card.
 export const BACKGROUNDS = [
-  // Solids
-  '#0a0a0a',
-  '#1a1a2e',
-  '#f5f5f7',
-  // Deep & moody
-  'linear-gradient(160deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
-  'linear-gradient(160deg, #0c0c1d 0%, #1a1a3e 40%, #2d1b4e 100%)',
-  'linear-gradient(135deg, #141e30 0%, #243b55 100%)',
-  // Warm sunset
-  'linear-gradient(160deg, #2d1f3d 0%, #6b3a5e 40%, #c4547a 70%, #f4a261 100%)',
-  'linear-gradient(135deg, #1f1c2c 0%, #928dab 100%)',
-  // Cool ocean
-  'linear-gradient(160deg, #0a192f 0%, #112d4e 40%, #1a6b8a 70%, #3dd5c8 100%)',
-  'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
-  // Aurora / neon
-  'linear-gradient(160deg, #0d0221 0%, #0d6b5e 35%, #6b21a8 65%, #d946ef 100%)',
-  'linear-gradient(135deg, #0a0a0a 0%, #1e3a5f 40%, #4c1d95 70%, #ec4899 100%)',
-  // Earth tones
-  'linear-gradient(160deg, #1a120b 0%, #3c2415 40%, #6b4226 70%, #d4a574 100%)',
-  'linear-gradient(135deg, #1b2838 0%, #2e4057 50%, #4a7c59 100%)',
-  // Bauhaus primaries
-  'linear-gradient(135deg, #d32f2f 0%, #f9a825 50%, #1565c0 100%)',
-  'linear-gradient(160deg, #0a0a0a 0%, #d32f2f 50%, #0a0a0a 100%)',
-  // Transparent
-  'transparent'
+  // Tonal stages — subtle vignettes
+  'radial-gradient(ellipse at top, #1d1d20 0%, #0d0d10 70%)',          // graphite
+  'radial-gradient(ellipse at top, #f4f1ec 0%, #e6e0d4 100%)',         // bone (for light themes)
+  'radial-gradient(ellipse at center, #0e0e10 0%, #050507 100%)',      // ink
+
+  // Tinted stages — single hue, deep, calm
+  'radial-gradient(ellipse at 30% 0%, #2d1f3d 0%, #1a1525 50%, #0d0a14 100%)', // plum
+  'radial-gradient(ellipse at 30% 0%, #1a2a3a 0%, #111a25 50%, #08101a 100%)', // ocean
+  'radial-gradient(ellipse at 30% 0%, #1f2a22 0%, #14201a 50%, #0a120e 100%)', // forest
+  'radial-gradient(ellipse at 30% 0%, #2a1f24 0%, #1f1518 50%, #110b0d 100%)', // rose dust
+
+  // Mesh gradients — multi-stop radial layers, low alpha
+  'radial-gradient(at 0% 0%, rgba(248,113,113,0.18) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(168,85,247,0.22) 0px, transparent 50%), radial-gradient(at 50% 100%, rgba(56,189,248,0.18) 0px, transparent 50%), #0e0e14', // dawn
+  'radial-gradient(at 100% 0%, rgba(129,140,248,0.24) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(244,114,182,0.18) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(45,212,191,0.16) 0px, transparent 60%), #0c0a18', // dusk
+  'radial-gradient(at 30% 0%, rgba(251,191,36,0.20) 0px, transparent 55%), radial-gradient(at 100% 100%, rgba(220,38,38,0.16) 0px, transparent 55%), #14100c', // amber
+  'radial-gradient(at 50% 0%, rgba(125,211,252,0.22) 0px, transparent 55%), radial-gradient(at 50% 100%, rgba(167,139,250,0.16) 0px, transparent 60%), #0b1018', // arctic
+
+  // Bauhaus — refined, soft 3-stop diagonal (not hard blocks)
+  'linear-gradient(135deg, #b91c1c 0%, #d97706 50%, #1d4ed8 100%)',
+
+  // Pure
+  '#000000',
+  'transparent',
 ];
+
+// One-line description per agent shown under the agent picker — based on real CLI behavior.
+export const AGENT_META: Record<Agent, { binary: string; subcommand?: string; promptFlag: string; autoFlag: string; doc: string }> = {
+  claude:   { binary: 'claude',   promptFlag: '-p',          autoFlag: '--dangerously-skip-permissions', doc: 'code.claude.com/docs/en/cli-reference' },
+  codex:    { binary: 'codex',    subcommand: 'exec', promptFlag: '<positional>', autoFlag: '--full-auto', doc: 'github.com/openai/codex' },
+  gemini:   { binary: 'gemini',   promptFlag: '-p',          autoFlag: '--yolo',                          doc: 'github.com/google-gemini/gemini-cli' },
+  opencode: { binary: 'opencode', subcommand: 'run', promptFlag: '<positional>', autoFlag: '--dangerously-skip-permissions', doc: 'opencode.ai/docs/cli' },
+  aider:    { binary: 'aider',    promptFlag: '--message',   autoFlag: '--yes-always',                    doc: 'aider.chat/docs/config/options.html' },
+  amp:      { binary: 'amp',      promptFlag: '-x',          autoFlag: '--dangerously-allow-all',         doc: 'ampcode.com/manual' },
+  qwen:     { binary: 'qwen',     promptFlag: '-p',          autoFlag: '--yolo',                          doc: 'github.com/QwenLM/qwen-code' },
+  kilo:     { binary: 'kilo',     subcommand: 'run', promptFlag: '<positional>', autoFlag: '--auto',                          doc: 'kilo.ai/docs/cli' },
+};
